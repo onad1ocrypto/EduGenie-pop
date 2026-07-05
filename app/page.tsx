@@ -35,14 +35,14 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState('');
   const [history, setHistory] = useState<ReportCard[]>([]);
   const [selectedReport, setSelectedReport] = useState<ReportCard | null>(null);
+  const [showRaporPanel, setShowRaporPanel] = useState(false); // Toggle lihat rapor di atas
 
   // --- STATE KUIS ---
   const [material, setMaterial] = useState('');
   const [language, setLanguage] = useState('id'); 
   const [quiz, setQuiz] = useState<QuizItem[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); // 🚀 Untuk sistem slide per soal
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({});
   const [showResults, setShowResults] = useState(false);
 
@@ -67,19 +67,18 @@ export default function Home() {
       alertFill: 'Username & Sandi harus diisi!',
       alertWrong: '❌ Username atau Sandi salah!',
       student: '🎒 Siswa',
-      logout: 'Keluar (Logout)',
+      logout: 'KELUAR (LOGOUT)',
+      raporMenuBtn: '📋 LIHAT RAPOR',
       mainSubtitle: 'Sulap Materi Menjadi 10 Soal Kuis Pilihan Ganda Komedi!',
       inputLabel: 'Masukkan Materi Belajar:',
       inputPlace: 'Contoh: "Belajar hukum Newton atau revolusi industri prancis"',
       submitBtn: '✨ SULAP JADI SOAL KUIS',
       loadingBtn: '🔮 MENYULAP SOAL KOCAK... TUNGGU YA!',
-      scoreBtn: '💯 Cek Skor Kuis Komedimu!',
-      raporTitle: '📋 Rapor & Analisis Jawaban Siswa',
+      scoreBtn: '💯 HITUNG SKOR KUIS!',
+      raporTitle: '📋 Rapor Kuis Kamu',
       correct: '✅ Betul Banget!',
       wrong: '❌ Salah Besar!',
       ansKey: 'Jawaban Benar:',
-      next: 'Selanjutnya ➡️',
-      prev: '⬅️ Sebelumnya',
       detailTitle: '🔍 Detail Laporan Jawaban:',
       yourAns: 'Jawaban Kamu:',
       closeDetail: 'Tutup Detail Rapor'
@@ -103,19 +102,18 @@ export default function Home() {
       alertFill: 'Username & Password are required!',
       alertWrong: '❌ Incorrect Username or Password!',
       student: '🎒 Student',
-      logout: 'Logout',
+      logout: 'LOGOUT',
+      raporMenuBtn: '📋 VIEW REPORT',
       mainSubtitle: 'Transform Study Materials Into 10 Hilarious Multiple-Choice Questions!',
       inputLabel: 'Enter Study Material:',
       inputPlace: 'Example: "Newton laws of motion or French industrial revolution"',
       submitBtn: '✨ MAGIC INTO QUIZ QUESTIONS',
       loadingBtn: '🔮 CONJURING FUNNY QUESTIONS... WAIT UP!',
-      scoreBtn: '💯 Check Your Comedy Quiz Score!',
-      raporTitle: '📋 Student Report Card & Answer Review',
+      scoreBtn: '💯 CHECK QUIZ SCORE!',
+      raporTitle: '📋 Your Report Card',
       correct: '✅ Spot On!',
       wrong: '❌ Way Off!',
       ansKey: 'Correct Answer:',
-      next: 'Next ➡️',
-      prev: '⬅️ Previous',
       detailTitle: '🔍 Detailed Answer Report:',
       yourAns: 'Your Answer:',
       closeDetail: 'Close Report Details'
@@ -140,18 +138,17 @@ export default function Home() {
       alertWrong: '❌ 用户名或密码错误！',
       student: '🎒 学生',
       logout: '退出登录',
+      raporMenuBtn: '📋 查看成绩单',
       mainSubtitle: '将学习材料神奇地变成10道搞笑的选择题！',
       inputLabel: '输入学习材料:',
       inputPlace: '例如：“牛顿运动定律或法国工业革命”',
       submitBtn: '✨ 变身成测试题',
       loadingBtn: '🔮 正在编织搞笑题... 请稍候！',
-      scoreBtn: '💯 查看你的喜剧测试分数！',
-      raporTitle: '📋 学生成绩单与答案分析',
+      scoreBtn: '💯 计算测试分数！',
+      raporTitle: '📋 你的成绩单',
       correct: '✅ 完全正确！',
       wrong: '❌ 大错特错！',
       ansKey: '正确答案:',
-      next: '下一题 ➡️',
-      prev: '⬅️ 上一题',
       detailTitle: '🔍 详细答案报告:',
       yourAns: '你的答案:',
       closeDetail: '关闭报告详情'
@@ -203,6 +200,7 @@ export default function Home() {
     setQuiz([]);
     setMaterial('');
     setSelectedReport(null);
+    setShowRaporPanel(false);
   };
 
   const handleSubmitQuiz = async (e: React.FormEvent) => {
@@ -210,11 +208,10 @@ export default function Home() {
     if (!material.trim()) return;
 
     setLoading(true);
-    setError('');
     setQuiz([]);
     setUserAnswers({});
     setShowResults(false);
-    setCurrentQuestionIndex(0); // Reset index ke soal pertama
+    setCurrentQuestionIndex(0); 
 
     try {
       const response = await fetch('/api/generate-quiz', {
@@ -265,7 +262,7 @@ export default function Home() {
       score: finalScore,
       totalQuestions: quiz.length,
       date: new Date().toLocaleDateString('id-ID'),
-      details: detailsReport // 🚀 Menyimpan laporan jawaban lengkap
+      details: detailsReport 
     };
 
     const updatedHistory = [newReport, ...history];
@@ -273,17 +270,16 @@ export default function Home() {
     localStorage.setItem(`history_${currentUser}`, JSON.stringify(updatedHistory));
   };
 
-  // --- RENDERING LOGIN / REGISTER ---
   if (!isLoggedIn) {
     return (
       <main className="min-h-screen bg-gray-100 py-16 px-4 flex flex-col items-center font-sans text-black">
         <div className="max-w-md w-full bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-xl p-6">
-          <h1 className="text-3xl font-extrabold text-center mb-1 uppercase tracking-wide text-black">🧙‍♂️ EduGenie Pop</h1>
+          <h1 className="text-3xl font-extrabold text-center mb-1 uppercase tracking-wide">🧙‍♂️ EduGenie Pop</h1>
           <p className="text-center text-xs font-bold text-gray-600 mb-6 uppercase tracking-wider">{t[language].subtitle}</p>
 
           <div className="flex flex-col gap-1 mb-6 border-b-2 border-dashed border-black pb-4">
             <label className="font-bold text-xs uppercase text-gray-700">{t[language].selectLang}</label>
-            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="p-2 border-2 border-black font-bold rounded-lg bg-yellow-300 text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none cursor-pointer text-sm">
+            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="p-2 border-2 border-black font-bold rounded-lg bg-yellow-300 text-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-sm focus:outline-none">
               <option value="id">🇮🇩 Bahasa Indonesia</option>
               <option value="en">🇺🇸 English</option>
               <option value="zh">🇨🇳 中文 / Mandarin</option>
@@ -312,17 +308,71 @@ export default function Home() {
     );
   }
 
-  // --- RENDERING CORE DASHBOARD ---
   const currentItem = quiz[currentQuestionIndex];
 
   return (
     <main className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center font-sans text-black">
-      <div className="max-w-2xl w-full flex justify-between items-center mb-4 px-2 font-bold text-sm">
+      {/* 👑 HEADER MENU: Rapor Sejajar di Samping Logout */}
+      <div className="max-w-2xl w-full flex justify-between items-center mb-6 px-2 font-bold text-sm">
         <div>{t[language].student}: <span className="underline">{currentUser}</span></div>
-        <button onClick={handleLogout} className="px-3 py-1 bg-red-400 border-2 border-black rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-xs font-black uppercase">
-          {t[language].logout}
-        </button>
+        <div className="flex gap-2">
+          <button 
+            onClick={() => { setShowRaporPanel(!showRaporPanel); setSelectedReport(null); }} 
+            className={`px-3 py-1 border-2 border-black rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-xs font-black uppercase transition-colors ${showRaporPanel ? 'bg-purple-400' : 'bg-purple-200'}`}
+          >
+            {t[language].raporMenuBtn}
+          </button>
+          <button onClick={handleLogout} className="px-3 py-1 bg-red-400 border-2 border-black rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-xs font-black uppercase">
+            {t[language].logout}
+          </button>
+        </div>
       </div>
+
+      {/* 📋 MENU PANEL RAPOR (MUNCUL DI ATAS HANYA JIKA DIKLIK) */}
+      {showRaporPanel && (
+        <div className="max-w-2xl w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5 mb-8">
+          <h2 className="font-black text-lg uppercase mb-4 tracking-wide bg-purple-200 border-2 border-black py-1 px-3 rounded inline-block">
+            {t[language].raporTitle}
+          </h2>
+          {history.length === 0 ? (
+            <p className="text-xs font-bold text-gray-500 italic">Belum ada riwayat kuis.</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {history.map((card) => (
+                <div key={card.id} onClick={() => setSelectedReport(card)} className="p-3 border-2 border-black rounded-lg bg-gray-50 flex justify-between items-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer hover:bg-purple-50 transition-colors">
+                  <div>
+                    <p className="font-extrabold text-sm capitalize">📚 {card.material} <span className="text-[10px] text-purple-600 font-bold ml-1 uppercase">(Detail)</span></p>
+                    <p className="text-xs font-bold text-gray-500 mt-0.5">Bahasa: {card.language} | Tgl: {card.date}</p>
+                  </div>
+                  <div className={`text-xl font-black p-2 border-2 border-black rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${card.score >= 70 ? 'bg-green-300' : 'bg-red-300'}`}>
+                    {card.score}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* DETAIL ANALISIS JAWABAN DARI RAPOR YANG DIKLIK */}
+      {selectedReport && showRaporPanel && (
+        <div className="max-w-2xl w-full bg-amber-50 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5 mb-8">
+          <div className="flex justify-between items-center border-b-2 border-black pb-2 mb-4">
+            <h3 className="font-black text-sm text-purple-800 uppercase">{t[language].detailTitle}</h3>
+            <span className="text-base font-black bg-white px-2 border-2 border-black rounded">{selectedReport.score}</span>
+          </div>
+          <p className="font-extrabold text-xs mb-3">📚 Materi: <span className="capitalize">{selectedReport.material}</span></p>
+          <div className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1">
+            {selectedReport.details?.map((det, dIdx) => (
+              <div key={dIdx} className="p-2.5 bg-white border-2 border-black rounded-lg shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] text-xs">
+                <p className="font-black mb-1">{dIdx + 1}. {det.question}</p>
+                <p className={`font-bold ${det.isCorrect ? 'text-green-700' : 'text-red-600'}`}>{t[language].yourAns} {det.selected}</p>
+                {!det.isCorrect && <p className="font-bold text-gray-600 mt-0.5">{t[language].ansKey} {det.correct}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Form Input Generator */}
       <div className="max-w-2xl w-full bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-xl p-6 mb-8">
@@ -332,7 +382,7 @@ export default function Home() {
         <form onSubmit={handleSubmitQuiz} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <label className="font-bold text-sm uppercase">{t[language].selectLang}</label>
-            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="p-3 border-3 border-black font-bold rounded-lg bg-yellow-300 text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:outline-none cursor-pointer">
+            <select value={language} onChange={(e) => setLanguage(e.target.value)} className="p-3 border-3 border-black font-bold rounded-lg bg-yellow-300 text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:outline-none">
               <option value="id">🇮🇩 Bahasa Indonesia (Kocak & Sarkas)</option>
               <option value="en">🇺🇸 English (Funny & Casual)</option>
               <option value="zh">🇨🇳 中文 / Mandarin (Humorous)</option>
@@ -344,21 +394,43 @@ export default function Home() {
             <textarea value={material} onChange={(e) => setMaterial(e.target.value)} placeholder={t[language].inputPlace} rows={4} disabled={loading} className="p-3 border-3 border-black font-semibold rounded-lg text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] focus:outline-none disabled:bg-gray-200" />
           </div>
 
-          <button type="submit" disabled={loading} className="w-full mt-2 py-3 bg-green-400 disabled:bg-gray-400 font-extrabold uppercase tracking-wider text-black border-3 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all cursor-pointer">
+          <button type="submit" disabled={loading} className="w-full mt-2 py-3 bg-green-400 disabled:bg-gray-400 font-extrabold uppercase tracking-wider text-black border-3 border-black rounded-lg shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] cursor-pointer">
             {loading ? t[language].loadingBtn : t[language].submitBtn}
           </button>
         </form>
       </div>
 
-      {/* 🚀 TAMPILAN SOAL - SISTEM SLIDE (HANYA MUNCUL SATU SOAL) */}
+      {/* 🚀 BOX UTAMA KUIS & NAVIGASI GRID NOMOR SOAL (5x2) */}
       {quiz.length > 0 && currentItem && (
-        <div className="max-w-2xl w-full flex flex-col gap-4 mb-8">
-          <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5">
-            <div className="flex justify-between font-black text-xs text-gray-500 mb-2 uppercase tracking-wider">
-              <span>Soal {currentQuestionIndex + 1} dari {quiz.length}</span>
-              <span className="bg-yellow-200 px-2 border border-black rounded">Pilihan Bergaya Slide</span>
+        <div className="max-w-2xl w-full flex flex-col gap-4 mb-10">
+          
+          {/* 🧭 NAVIGASI 2 BARIS (GRID 5 KOLOM) */}
+          <div className="flex flex-col gap-2 bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-xl p-4">
+            <p className="font-black text-xs uppercase tracking-wider text-center text-gray-500 mb-1">Navigasi Nomor Soal:</p>
+            <div className="grid grid-cols-5 gap-2">
+              {quiz.map((_, idx) => {
+                const isAnswered = userAnswers[idx] !== undefined;
+                let numStyle = 'bg-white';
+                
+                if (currentQuestionIndex === idx) numStyle = 'bg-yellow-300 ring-2 ring-black font-black';
+                else if (isAnswered) numStyle = 'bg-blue-100 font-bold';
+
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setCurrentQuestionIndex(idx)}
+                    className={`p-2.5 border-2 border-black text-sm font-extrabold rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer text-center ${numStyle}`}
+                  >
+                    {idx + 1}
+                  </button>
+                );
+              })}
             </div>
-            
+          </div>
+
+          {/* Kotak Pertanyaan Aktif */}
+          <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5 mt-2">
             <h3 className="font-extrabold text-lg mb-4">{currentQuestionIndex + 1}. {currentItem.question}</h3>
             
             <div className="flex flex-col gap-2">
@@ -372,7 +444,7 @@ export default function Home() {
                 }
 
                 return (
-                  <button key={oIdx} type="button" onClick={() => handleSelectOption(option)} disabled={showResults} className={`w-full p-3 border-2 border-black font-bold text-left rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all ${btnStyle}`}>
+                  <button key={oIdx} type="button" onClick={() => handleSelectOption(option)} disabled={showResults} className={`w-full p-3 border-2 border-black font-bold text-left rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${btnStyle}`}>
                     {option}
                   </button>
                 );
@@ -389,71 +461,12 @@ export default function Home() {
             )}
           </div>
 
-          {/* Navigasi Slide Soal */}
-          <div className="flex justify-between items-center gap-4">
-            <button type="button" disabled={currentQuestionIndex === 0} onClick={() => setCurrentQuestionIndex(prev => prev - 1)} className="px-4 py-2 bg-white border-2 border-black font-bold rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50 cursor-pointer">
-              {t[language].prev}
+          {/* Tombol Hitung Skor (Muncul di paling bawah kuis jika belum selesai dinilai) */}
+          {!showResults && (
+            <button onClick={checkScore} className="w-full py-3.5 bg-yellow-400 font-black uppercase border-4 border-black rounded-xl shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer text-center">
+              {t[language].scoreBtn}
             </button>
-            
-            {currentQuestionIndex < quiz.length - 1 ? (
-              <button type="button" onClick={() => setCurrentQuestionIndex(prev => prev + 1)} className="px-4 py-2 bg-white border-2 border-black font-bold rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer">
-                {t[language].next}
-              </button>
-            ) : (
-              !showResults && (
-                <button onClick={checkScore} className="px-5 py-2 bg-yellow-400 font-black uppercase border-2 border-black rounded shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] cursor-pointer">
-                  {t[language].scoreBtn}
-                </button>
-              )
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 🚀 DIALOG MODAL / DETAIL ANALISIS JAWABAN RAPOR */}
-      {selectedReport && (
-        <div className="max-w-2xl w-full bg-amber-50 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5 mb-8">
-          <div className="flex justify-between items-center border-b-2 border-black pb-2 mb-4">
-            <h3 className="font-black text-lg text-purple-800 uppercase">{t[language].detailTitle}</h3>
-            <span className="text-xl font-black bg-white px-2 border-2 border-black rounded">{selectedReport.score}</span>
-          </div>
-          <p className="font-extrabold text-sm mb-4">📚 Materi: <span className="capitalize">{selectedReport.material}</span> ({selectedReport.language})</p>
-          
-          <div className="flex flex-col gap-4 max-h-96 overflow-y-auto pr-1">
-            {selectedReport.details?.map((det, dIdx) => (
-              <div key={dIdx} className="p-3 bg-white border-2 border-black rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] text-xs">
-                <p className="font-black mb-1.5">{dIdx + 1}. {det.question}</p>
-                <p className={`font-bold ${det.isCorrect ? 'text-green-700' : 'text-red-600'}`}>{t[language].yourAns} {det.selected}</p>
-                {!det.isCorrect && <p className="font-bold text-gray-600 mt-0.5">{t[language].ansKey} {det.correct}</p>}
-              </div>
-            ))}
-          </div>
-          
-          <button onClick={() => setSelectedReport(null)} className="mt-5 w-full py-2 bg-black text-white font-bold rounded border-2 border-black shadow-[2px_2px_0px_0px_rgba(100,100,100,1)] cursor-pointer text-center text-xs uppercase">
-            {t[language].closeDetail}
-          </button>
-        </div>
-      )}
-
-      {/* Rapor Nilai Siswa (Bisa Diklik Untuk Membuka Detail Jawaban) */}
-      {history.length > 0 && (
-        <div className="max-w-2xl w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5 mb-10">
-          <h2 className="font-black text-xl uppercase mb-4 tracking-wide bg-purple-200 border-2 border-black py-1 px-3 rounded inline-block">
-            {t[language].raporTitle}
-          </h2>
-          <div className="flex flex-col gap-3">
-            {history.map((card) => (
-              <div key={card.id} onClick={() => setSelectedReport(card)} className="p-3 border-2 border-black rounded-lg bg-gray-50 flex justify-between items-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer hover:bg-purple-50 transition-colors">
-                <div>
-                  <p className="font-extrabold text-sm capitalize">📚 {card.material} <span className="text-[10px] text-purple-600 font-bold ml-1 uppercase">(Klik Detail)</span></p>
-                  <p className="text-xs font-bold text-gray-500 mt-0.5">Bahasa: {card.language} | Tgl: {card.date}</p>
-                </div>
-                <div className={`text-xl font-black p-2 border-2 border-black rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${card.score >= 70 ? 'bg-green-300' : 'bg-red-300'}`}>
-                  {card.score}
-                </div>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
       )}
 

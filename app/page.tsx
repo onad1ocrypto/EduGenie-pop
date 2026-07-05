@@ -35,13 +35,12 @@ export default function Home() {
   const [currentUser, setCurrentUser] = useState('');
   const [history, setHistory] = useState<ReportCard[]>([]);
   const [selectedReport, setSelectedReport] = useState<ReportCard | null>(null);
-  const [showRaporPanel, setShowRaporPanel] = useState(false); // Toggle lihat rapor di atas
+  const [showRaporPanel, setShowRaporPanel] = useState(false);
 
   // --- STATE KUIS ---
   const [material, setMaterial] = useState('');
   const [language, setLanguage] = useState('id'); 
   const [quiz, setQuiz] = useState<QuizItem[]>([]);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0); 
   const [loading, setLoading] = useState(false);
   const [userAnswers, setUserAnswers] = useState<{ [key: number]: string }>({});
   const [showResults, setShowResults] = useState(false);
@@ -74,7 +73,7 @@ export default function Home() {
       inputPlace: 'Contoh: "Belajar hukum Newton atau revolusi industri prancis"',
       submitBtn: '✨ SULAP JADI SOAL KUIS',
       loadingBtn: '🔮 MENYULAP SOAL KOCAK... TUNGGU YA!',
-      scoreBtn: '💯 HITUNG SKOR KUIS!',
+      scoreBtn: '💯 CEK SKOR KUIS KOMEDIMU!',
       raporTitle: '📋 Rapor Kuis Kamu',
       correct: '✅ Betul Banget!',
       wrong: '❌ Salah Besar!',
@@ -109,7 +108,7 @@ export default function Home() {
       inputPlace: 'Example: "Newton laws of motion or French industrial revolution"',
       submitBtn: '✨ MAGIC INTO QUIZ QUESTIONS',
       loadingBtn: '🔮 CONJURING FUNNY QUESTIONS... WAIT UP!',
-      scoreBtn: '💯 CHECK QUIZ SCORE!',
+      scoreBtn: '💯 CHECK YOUR COMEDY QUIZ SCORE!',
       raporTitle: '📋 Your Report Card',
       correct: '✅ Spot On!',
       wrong: '❌ Way Off!',
@@ -144,7 +143,7 @@ export default function Home() {
       inputPlace: '例如：“牛顿运动定律或法国工业革命”',
       submitBtn: '✨ 变身成测试题',
       loadingBtn: '🔮 正在编织搞笑题... 请稍候！',
-      scoreBtn: '💯 计算测试分数！',
+      scoreBtn: '💯 查看你的喜剧测试分数！',
       raporTitle: '📋 你的成绩单',
       correct: '✅ 完全正确！',
       wrong: '❌ 大错特错！',
@@ -211,7 +210,6 @@ export default function Home() {
     setQuiz([]);
     setUserAnswers({});
     setShowResults(false);
-    setCurrentQuestionIndex(0); 
 
     try {
       const response = await fetch('/api/generate-quiz', {
@@ -229,9 +227,10 @@ export default function Home() {
     }
   };
 
-  const handleSelectOption = (option: string) => {
+  // 🚀 Diperbaiki: Menerima indeks soal agar opsi jawaban tidak bocor antar nomor soal
+  const handleSelectOption = (questionIndex: number, option: string) => {
     if (showResults) return;
-    setUserAnswers({ ...userAnswers, [currentQuestionIndex]: option });
+    setUserAnswers({ ...userAnswers, [questionIndex]: option });
   };
 
   const checkScore = () => {
@@ -308,11 +307,9 @@ export default function Home() {
     );
   }
 
-  const currentItem = quiz[currentQuestionIndex];
-
   return (
     <main className="min-h-screen bg-gray-100 py-10 px-4 flex flex-col items-center font-sans text-black">
-      {/* 👑 HEADER MENU: Rapor Sejajar di Samping Logout */}
+      {/* 👑 MENU UTAMA: Rapor Bersebelahan Dengan Logout */}
       <div className="max-w-2xl w-full flex justify-between items-center mb-6 px-2 font-bold text-sm">
         <div>{t[language].student}: <span className="underline">{currentUser}</span></div>
         <div className="flex gap-2">
@@ -328,7 +325,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 📋 MENU PANEL RAPOR (MUNCUL DI ATAS HANYA JIKA DIKLIK) */}
+      {/* PANEL DAFTAR RAPOR */}
       {showRaporPanel && (
         <div className="max-w-2xl w-full bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5 mb-8">
           <h2 className="font-black text-lg uppercase mb-4 tracking-wide bg-purple-200 border-2 border-black py-1 px-3 rounded inline-block">
@@ -341,7 +338,7 @@ export default function Home() {
               {history.map((card) => (
                 <div key={card.id} onClick={() => setSelectedReport(card)} className="p-3 border-2 border-black rounded-lg bg-gray-50 flex justify-between items-center shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] cursor-pointer hover:bg-purple-50 transition-colors">
                   <div>
-                    <p className="font-extrabold text-sm capitalize">📚 {card.material} <span className="text-[10px] text-purple-600 font-bold ml-1 uppercase">(Detail)</span></p>
+                    <p className="font-extrabold text-sm capitalize">📚 {card.material} <span className="text-[10px] text-purple-600 font-bold ml-1 uppercase">(Detail Laporan)</span></p>
                     <p className="text-xs font-bold text-gray-500 mt-0.5">Bahasa: {card.language} | Tgl: {card.date}</p>
                   </div>
                   <div className={`text-xl font-black p-2 border-2 border-black rounded-md shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${card.score >= 70 ? 'bg-green-300' : 'bg-red-300'}`}>
@@ -354,7 +351,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* DETAIL ANALISIS JAWABAN DARI RAPOR YANG DIKLIK */}
+      {/* ISI LAPORAN DETAIL JAWABAN RAPOR */}
       {selectedReport && showRaporPanel && (
         <div className="max-w-2xl w-full bg-amber-50 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5 mb-8">
           <div className="flex justify-between items-center border-b-2 border-black pb-2 mb-4">
@@ -400,70 +397,63 @@ export default function Home() {
         </form>
       </div>
 
-      {/* 🚀 BOX UTAMA KUIS & NAVIGASI GRID NOMOR SOAL (5x2) */}
-      {quiz.length > 0 && currentItem && (
-        <div className="max-w-2xl w-full flex flex-col gap-4 mb-10">
-          
-          {/* 🧭 NAVIGASI 2 BARIS (GRID 5 KOLOM) */}
-          <div className="flex flex-col gap-2 bg-white border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-xl p-4">
-            <p className="font-black text-xs uppercase tracking-wider text-center text-gray-500 mb-1">Navigasi Nomor Soal:</p>
-            <div className="grid grid-cols-5 gap-2">
-              {quiz.map((_, idx) => {
-                const isAnswered = userAnswers[idx] !== undefined;
-                let numStyle = 'bg-white';
+      {/* 🚀 TAMPILAN 10 SOAL KUIS SEKALIGUS KE BAWAH */}
+      {quiz.length > 0 && (
+        <div className="max-w-2xl w-full flex flex-col gap-6 mb-10">
+          {quiz.map((item, qIdx) => {
+            const isCorrect = userAnswers[qIdx] === item.answer;
+            return (
+              <div key={qIdx} className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5">
+                <h3 className="font-extrabold text-lg mb-4 text-black">
+                  {qIdx + 1}. {item.question}
+                </h3>
                 
-                if (currentQuestionIndex === idx) numStyle = 'bg-yellow-300 ring-2 ring-black font-black';
-                else if (isAnswered) numStyle = 'bg-blue-100 font-bold';
+                {/* 🎯 PILIHAN JAWABAN: DIBUAT GRID 2x2 (5 Kolom Atas, 5 Kolom Bawah Seimbang) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {item.options.map((option, oIdx) => {
+                    const isSelected = userAnswers[qIdx] === option;
+                    let btnStyle = 'bg-white';
 
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setCurrentQuestionIndex(idx)}
-                    className={`p-2.5 border-2 border-black text-sm font-extrabold rounded shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer text-center ${numStyle}`}
-                  >
-                    {idx + 1}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+                    if (isSelected) btnStyle = 'bg-blue-300';
+                    if (showResults) {
+                      if (option === item.answer) btnStyle = 'bg-green-300';
+                      else if (isSelected && !isCorrect) btnStyle = 'bg-red-300';
+                    }
 
-          {/* Kotak Pertanyaan Aktif */}
-          <div className="bg-white border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-xl p-5 mt-2">
-            <h3 className="font-extrabold text-lg mb-4">{currentQuestionIndex + 1}. {currentItem.question}</h3>
-            
-            <div className="flex flex-col gap-2">
-              {currentItem.options.map((option, oIdx) => {
-                const isSelected = userAnswers[currentQuestionIndex] === option;
-                let btnStyle = 'bg-white';
-                if (isSelected) btnStyle = 'bg-blue-300';
-                if (showResults) {
-                  if (option === currentItem.answer) btnStyle = 'bg-green-300';
-                  else if (isSelected && userAnswers[currentQuestionIndex] !== currentItem.answer) btnStyle = 'bg-red-300';
-                }
+                    return (
+                      <button
+                        key={oIdx}
+                        type="button"
+                        onClick={() => handleSelectOption(qIdx, option)} // Fix Bug: Mengirim qIdx yang tepat
+                        disabled={showResults}
+                        className={`w-full p-3 border-2 border-black font-bold text-left rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all ${btnStyle}`}
+                      >
+                        {option}
+                      </button>
+                    );
+                  })}
+                </div>
 
-                return (
-                  <button key={oIdx} type="button" onClick={() => handleSelectOption(option)} disabled={showResults} className={`w-full p-3 border-2 border-black font-bold text-left rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] ${btnStyle}`}>
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-
-            {showResults && (
-              <div className="mt-4 p-3 bg-yellow-100 border-2 border-dashed border-black rounded-lg text-sm">
-                <p className="font-extrabold">
-                  {userAnswers[currentQuestionIndex] === currentItem.answer ? t[language].correct : t[language].wrong} {t[language].ansKey} {currentItem.answer}
-                </p>
-                <p className="mt-1 font-semibold text-gray-700 italic">💡 {currentItem.explanation}</p>
+                {showResults && (
+                  <div className="mt-4 p-3 bg-yellow-100 border-2 border-dashed border-black rounded-lg text-sm text-black">
+                    <p className="font-extrabold">
+                      {isCorrect ? t[language].correct : t[language].wrong} {t[language].ansKey} {item.answer}
+                    </p>
+                    <p className="mt-1 font-semibold text-gray-700 italic">
+                      💡 {item.explanation}
+                    </p>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            );
+          })}
 
-          {/* Tombol Hitung Skor (Muncul di paling bawah kuis jika belum selesai dinilai) */}
+          {/* Tombol Hitung Skor */}
           {!showResults && (
-            <button onClick={checkScore} className="w-full py-3.5 bg-yellow-400 font-black uppercase border-4 border-black rounded-xl shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer text-center">
+            <button
+              onClick={checkScore}
+              className="w-full py-4 bg-yellow-400 font-black uppercase text-black border-4 border-black rounded-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"
+            >
               {t[language].scoreBtn}
             </button>
           )}
